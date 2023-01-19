@@ -29,21 +29,18 @@ def getReferenceUrlsOfPage(domain, url, depth):
                         mediaURLs.add(scrapedURL)
                         continue 
                     alreadyScrapedURLs.add(scrapedURL)
-                
-    for url in alreadyScrapedURLs:
-        print(url)
-    # for url in mediaURLs:
-    #     print(url)  
+
+    return alreadyScrapedURLs, mediaURLs
 
 def main():
     allUrlsScraped = set()
     allMediaScraped = set()
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
-    print("Please enter a domain, a URL, and a depth separated by spaces. i.e. www.rit.edu https://www.rit.edu 2")
+    print("Please enter a domain, a URL including https://, and a depth all separated by spaces. i.e. www.rit.edu https://www.rit.edu 2")
     inputParams = input("Enter here: ")
     scraperParams = inputParams.split(" ")
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
-    getReferenceUrlsOfPage(domain, url, depth)
+    pageURLs, pageMedia = getReferenceUrlsOfPage(domain, url, depth)
     
 if __name__ == "__main__":
     main()
