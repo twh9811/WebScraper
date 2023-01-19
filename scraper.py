@@ -41,6 +41,13 @@ def main():
     scraperParams = inputParams.split(" ")
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
     pageURLs, pageMedia = getReferenceUrlsOfPage(domain, url, depth)
+    for url in pageURLs:
+        allUrlsScraped.add(url)
+    for media in pageMedia:
+        allMediaScraped.add(media)
+    print(len(allUrlsScraped))
+    print(len(allMediaScraped))
+    print(allUrlsScraped)
     
 if __name__ == "__main__":
     main()
