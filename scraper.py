@@ -54,9 +54,11 @@ def main():
         print(url + " " + str(depth))
         url = random.sample(allUrlsScraped, 1)[0]
         depth -= 1
-    # print(len(allUrlsScraped))
-    # print(len(allMediaScraped))
-    print(allUrlsScraped)
+    # # print(len(allUrlsScraped))
+    # # print(len(allMediaScraped))
+    # print(allUrlsScraped)
+    print("Total Amount of URLs Scraped: " + str(len(allUrlsScraped)))
+    print("Total Amount of Media Scraped: " + str(len(allMediaScraped)))
     
 if __name__ == "__main__":
     main()
