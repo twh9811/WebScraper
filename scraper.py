@@ -1,8 +1,9 @@
 import urllib.request
 import re
+import random
 
 
-def getReferenceUrlsOfPage(domain, url, depth):
+def getReferenceUrlsOfPage(domain, url):
     webpage = urllib.request.urlopen(url)
     alreadyScrapedURLs = set()
     websiteMediaExtensions = ["jpg", "png", "mp3", "mp4", "pdf", "mov"]
@@ -13,6 +14,9 @@ def getReferenceUrlsOfPage(domain, url, depth):
                 regexPattern = "href=\"(.*?)\""
                 referencedUrls = re.findall(regexPattern, line)
                 for scrapedURL in referencedUrls:
+                    # handles potential regex mistake of an empty string being found
+                    if len(scrapedURL) == 0:
+                        continue
                     # Skips scanning the same website
                     if scrapedURL == url or scrapedURL == url + "/":
                         continue
@@ -40,13 +44,18 @@ def main():
     inputParams = input("Enter here: ")
     scraperParams = inputParams.split(" ")
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
-    pageURLs, pageMedia = getReferenceUrlsOfPage(domain, url, depth)
-    for url in pageURLs:
-        allUrlsScraped.add(url)
-    for media in pageMedia:
-        allMediaScraped.add(media)
-    print(len(allUrlsScraped))
-    print(len(allMediaScraped))
+    depth = int(depth)
+    while depth >= 0:
+        pageURLs, pageMedia = getReferenceUrlsOfPage(domain, url)
+        for url in pageURLs:
+            allUrlsScraped.add(url)
+        for media in pageMedia:
+            allMediaScraped.add(media)
+        print(url + " " + str(depth))
+        url = random.sample(allUrlsScraped, 1)[0]
+        depth -= 1
+    # print(len(allUrlsScraped))
+    # print(len(allMediaScraped))
     print(allUrlsScraped)
     
 if __name__ == "__main__":
