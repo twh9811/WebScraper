@@ -6,19 +6,31 @@ from bs4 import BeautifulSoup
 
 def getReferenceUrlsOfPage(domain, url):
     webpage = urllib.request.urlopen(url)
+    # for line in webpage:
+    #     print(line.decode().strip())
     alreadyScrapedURLs = set()
     mediaURLs = set()
-    websiteMediaExtensions = ["jpg", "png", "mp3", "mp4", "pdf", "mov", "css"]
 
-    soupify = BeautifulSoup(webpage, 'html.parser')
+    soupify = BeautifulSoup(webpage)
 
-    links = soupify.select("link")
+    # Handles HTML and CSS
+    links = soupify.findAll("a")
     for link in links:
-        linkType = link.get('rel')
         linkURL = link.get('href')
-        print(linkURL)
-        print(linkType)
-    print(mediaURLs)
+        # A link should have an href tag and not be empty to be included 
+        if linkURL != None and len(linkURL) != 0:
+            # Check to see if result is unique to the domain
+            if linkURL[0] == "/":
+                #If it it is we request the websites for these as well.
+            alreadyScrapedURLs.add(linkURL)
+
+    # Handles JavaScript.
+    srcs = soupify.findAll("script")
+    for src in srcs:
+        srcURL = src.get('src')
+        # A script should have an src tag and not be empty to be included.
+        if srcURL != None and len(srcURL) != 0:
+            alreadyScrapedURLs.add(srcURL)
 
     
     # for line in webpage:
@@ -28,14 +40,8 @@ def getReferenceUrlsOfPage(domain, url):
     #         referencedUrls = re.findall(regexPattern, line)
     #         for scrapedURL in referencedUrls:
     #             # handles potential regex mistake of an empty string being found
-    #             if len(scrapedURL) == 0:
-    #                 continue
-    #             # Skips scanning the same website
-    #             if scrapedURL == url or scrapedURL == url + "/":
-    #                 continue
-    #             #goes to the page associated with the domain (i.e. /events leads to www.rit.edu/events)
-    #             if scrapedURL[0] == "/":
-    #                 scrapedURL = "https://" + domain + scrapedURL
+    #             
+    #             
     #             # since we handled the backslash only cases (/events), we can get rid of any URLs/strings that don't have the domain that snuck past
     #             if domain not in scrapedURL:
     #                 continue
@@ -55,7 +61,7 @@ def main():
     allUrlsScraped = set()
     allMediaScraped = set()
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
-    print("Please enter a domain, a URL including https://, and a depth all separated by spaces. i.e. www.rit.edu https://www.rit.edu 2")
+    print("Please enter a domain and URL both including https://, and a depth all separated by spaces. i.e. https://www.rit.edu https://www.rit.edu 2")
     inputParams = input("Enter here: ")
     scraperParams = inputParams.split(" ")
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
@@ -73,9 +79,8 @@ def main():
     # # # print(len(allUrlsScraped))
     # # print(len(allMediaScraped))
     # print(allUrlsScraped)
-    print("Total Amount of URLs Scraped: " + str(len(allUrlsScraped)))
-    print("Total Amount of Media Scraped: " + str(len(allMediaScraped)))
-    # print(allMediaScraped)
+    print("Total Amount of URLs Scraped: " + str(len(pageURLs)))
+    print(pageURLs)
     
 if __name__ == "__main__":
     main()
