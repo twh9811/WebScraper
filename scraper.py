@@ -129,16 +129,9 @@ def main():
                 t.start()
                 t.join()
             print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
-                # newUrlList = getReferenceUrlsOfPage(domain, url)
-                # for urlList in newUrlList:
-                #     for url in urlList:
-                #         allUrlsScraped.add(url)
-                #         print(url)
         castDepth -= 1
         counter += 1
-       
     
-    # print(allUrlsScraped)
     
 if __name__ == "__main__":
     main()
