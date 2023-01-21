@@ -105,6 +105,7 @@ def main():
             for urlList in urlLists:
                 for url in urlList:
                     allUrlsScraped.add(url)
+            print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
         else:
             q = queue.Queue()
             # Then we use the urls we scraped from the first url and then scrape those.
@@ -119,16 +120,14 @@ def main():
                 t = threading.Thread(target=execute_queue, args=(domain,q,))
                 t.start()
                 t.join()
-
+            print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
                 # newUrlList = getReferenceUrlsOfPage(domain, url)
                 # for urlList in newUrlList:
                 #     for url in urlList:
                 #         allUrlsScraped.add(url)
                 #         print(url)
-        print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
         castDepth -= 1
         counter += 1
-        
        
     
     # print(allUrlsScraped)
