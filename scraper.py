@@ -8,21 +8,25 @@ def getReferenceUrlsOfPage(domain, url):
     webpage = urllib.request.urlopen(url)
     # for line in webpage:
     #     print(line.decode().strip())
-    alreadyScrapedURLs = set()
+    htmlURLs = set()
+    javaScriptURLs = set()
+    cssURLs = set()
     mediaURLs = set()
 
     soupify = BeautifulSoup(webpage)
 
-    # Handles HTML and CSS
-    links = soupify.findAll("a")
-    for link in links:
-        linkURL = link.get('href')
+    # Handles hyperlinks in HTML
+    hyperlinks = soupify.findAll("a")
+    for hyperlink in hyperlinks:
+        hyperlinkURL = hyperlink.get('href')
         # A link should have an href tag and not be empty to be included 
-        if linkURL != None and len(linkURL) != 0:
+        if hyperlinkURL != None and len(hyperlinkURL) != 0:
             # Check to see if result is unique to the domain
-            if linkURL[0] == "/":
-                #If it it is we request the websites for these as well.
-            alreadyScrapedURLs.add(linkURL)
+            if hyperlinkURL[0] == "/":
+                #add domain to make a full url
+                hyperlinkURL = "https://" + domain + hyperlinkURL
+                #Scrape this website as well
+            htmlURLs.add(hyperlinkURL)
 
     # Handles JavaScript.
     srcs = soupify.findAll("script")
@@ -30,30 +34,23 @@ def getReferenceUrlsOfPage(domain, url):
         srcURL = src.get('src')
         # A script should have an src tag and not be empty to be included.
         if srcURL != None and len(srcURL) != 0:
-            alreadyScrapedURLs.add(srcURL)
+            javaScriptURLs.add(srcURL)
 
-    
-    # for line in webpage:
-    #         line = line.decode().strip()
-    #         # if domain in line:
-    #         regexPattern = "href=\"(.*?)\""
-    #         referencedUrls = re.findall(regexPattern, line)
-    #         for scrapedURL in referencedUrls:
-    #             # handles potential regex mistake of an empty string being found
-    #             
-    #             
-    #             # since we handled the backslash only cases (/events), we can get rid of any URLs/strings that don't have the domain that snuck past
-    #             if domain not in scrapedURL:
-    #                 continue
-    #             # You should record, but do not need to search, files that are likely to be media (.jpg, .png, .mp4, etc.)
-    #             # Achieve this by splitting on periods and getting the potential file extension (which should be the last index of the list)
-    #             mediaTest = scrapedURL.split(".")
-    #             if mediaTest[len(mediaTest)-1] in websiteMediaExtensions:
-    #                 mediaURLs.add(scrapedURL)
-    #                 continue 
-    #             alreadyScrapedURLs.add(scrapedURL)
+    # Handles CSS
+    links = soupify.findAll("link")
+    for link in links:
+        linkURL = link.get("href")
+        # We want the sites to be on the same domain, so we check for the keyword.
+        splitDomain = domain.split(".")
+        #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
+        if splitDomain[1] in linkURL:
+            #print(linkURL)
+            if linkURL in htmlURLs:
+                continue
+            print(linkURL)
+            cssURLs.add(linkURL)
 
-    return alreadyScrapedURLs, mediaURLs
+    return htmlURLs, javaScriptURLs, cssURLs
 
 
 
@@ -61,7 +58,7 @@ def main():
     allUrlsScraped = set()
     allMediaScraped = set()
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
-    print("Please enter a domain and URL both including https://, and a depth all separated by spaces. i.e. https://www.rit.edu https://www.rit.edu 2")
+    print("Please enter a domain, a URL including https://, and a depth all separated by spaces. i.e. https://www.rit.edu https://www.rit.edu 2")
     inputParams = input("Enter here: ")
     scraperParams = inputParams.split(" ")
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
@@ -80,7 +77,7 @@ def main():
     # # print(len(allMediaScraped))
     # print(allUrlsScraped)
     print("Total Amount of URLs Scraped: " + str(len(pageURLs)))
-    print(pageURLs)
+    # print(pageURLs)
     
 if __name__ == "__main__":
     main()
