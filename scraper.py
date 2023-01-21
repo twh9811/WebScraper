@@ -11,7 +11,7 @@ def getReferenceUrlsOfPage(domain, url):
     htmlURLs = set()
     javaScriptURLs = set()
     cssURLs = set()
-    mediaURLs = set()
+    urlList = []
 
     soupify = BeautifulSoup(webpage)
 
@@ -34,50 +34,65 @@ def getReferenceUrlsOfPage(domain, url):
         srcURL = src.get('src')
         # A script should have an src tag and not be empty to be included.
         if srcURL != None and len(srcURL) != 0:
+            # We want the urls to be on the same domain, so we check for the keyword.
+            splitDomain = domain.split(".")
+            #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
+            if splitDomain[1] not in srcURL:
+                print(srcURL)
+                continue
             javaScriptURLs.add(srcURL)
 
     # Handles CSS
     links = soupify.findAll("link")
     for link in links:
         linkURL = link.get("href")
-        # We want the sites to be on the same domain, so we check for the keyword.
+        # We want the urls to be on the same domain, so we check for the keyword.
         splitDomain = domain.split(".")
         #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
         if splitDomain[1] in linkURL:
-            #print(linkURL)
             if linkURL in htmlURLs:
                 continue
-            print(linkURL)
             cssURLs.add(linkURL)
 
-    return htmlURLs, javaScriptURLs, cssURLs
+    # adding all the sets into a list to make return value easier to handle
+    urlList.append(htmlURLs)
+    urlList.append(javaScriptURLs)
+    urlList.append(cssURLs)
+
+    return urlList
 
 
 
 def main():
     allUrlsScraped = set()
-    allMediaScraped = set()
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
     print("Please enter a domain, a URL including https://, and a depth all separated by spaces. i.e. https://www.rit.edu https://www.rit.edu 2")
     inputParams = input("Enter here: ")
     scraperParams = inputParams.split(" ")
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
-    depth = int(depth)
-    pageURLs, pageMedia = getReferenceUrlsOfPage(domain, url)
-    # while depth >= 0:
-    #     pageURLs, pageMedia = getReferenceUrlsOfPage(domain, url)
-    #     for url in pageURLs:
-    #         allUrlsScraped.add(url)
-    #     for media in pageMedia:
-    #         allMediaScraped.add(media)
-    #     # print(url + " " + str(depth))
-    #     # url = random.sample(allUrlsScraped, 1)[0]
-    #     depth -= 1
-    # # # print(len(allUrlsScraped))
-    # # print(len(allMediaScraped))
+    castDepth = int(depth)
+    counter = 0
+    while castDepth >= 0:
+        # if its the first iteration we want to gather all the urls from our initial input url
+        if castDepth == int(depth):
+            urlList = getReferenceUrlsOfPage(domain, url)
+            for urlList in urlList:
+                for url in urlList:
+                    allUrlsScraped.add(url)
+        else:
+            # Then we use the urls we scraped from the first url and then scrape those.
+            iterableScapedUrls = list(allUrlsScraped)
+            for url in iterableScapedUrls:
+                newUrlList = getReferenceUrlsOfPage(domain, url)
+                for urlList in newUrlList:
+                    for url in urlList:
+                        allUrlsScraped.add(url)
+        print(depth)
+        print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
+        castDepth -= 1
+        counter += 1
+    
     # print(allUrlsScraped)
-    print("Total Amount of URLs Scraped: " + str(len(pageURLs)))
-    # print(pageURLs)
     
 if __name__ == "__main__":
     main()
