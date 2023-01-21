@@ -1,19 +1,21 @@
 import urllib.request
 import urllib.error
+import queue
+import threading
 from bs4 import BeautifulSoup
 
+
+allUrlsScraped = set()
 
 def getReferenceUrlsOfPage(domain, url):
     try:
         webpage = urllib.request.urlopen(url)
-        # for line in webpage:
-        #     print(line.decode().strip())
         htmlURLs = set()
         javaScriptURLs = set()
         cssURLs = set()
         urlList = []
 
-        soupify = BeautifulSoup(webpage)
+        soupify = BeautifulSoup(webpage, 'html.parser')
 
         # Handles hyperlinks in HTML
         hyperlinks = soupify.findAll("a")
@@ -75,11 +77,19 @@ def getReferenceUrlsOfPage(domain, url):
         pass
 
     
-
-
+def execute_queue(domain, url_queue):
+    q_full = True
+    while q_full:
+        try:
+            url = url_queue.get(False)
+            urlLists = getReferenceUrlsOfPage(domain, url)
+            for urlList in urlLists:
+                for url in urlList:
+                    allUrlsScraped.add(url)
+        except queue.Empty:
+            q_full = False
 
 def main():
-    allUrlsScraped = set()
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
     print("Please enter a domain, a URL including https://, and a depth all separated by spaces. i.e. www.rit.edu https://www.rit.edu 2")
     inputParams = input("Enter here: ")
@@ -87,25 +97,39 @@ def main():
     domain, url, depth = scraperParams[0], scraperParams[1], scraperParams[2]
     castDepth = int(depth)
     counter = 0
+
     while castDepth >= 0:
         # if its the first iteration we want to gather all the urls from our initial input url
         if castDepth == int(depth):
-            urlList = getReferenceUrlsOfPage(domain, url)
-            for urlList in urlList:
+            urlLists = getReferenceUrlsOfPage(domain, url)
+            for urlList in urlLists:
                 for url in urlList:
                     allUrlsScraped.add(url)
         else:
+            q = queue.Queue()
             # Then we use the urls we scraped from the first url and then scrape those.
             iterableScapedUrls = list(allUrlsScraped)
             for url in iterableScapedUrls:
-                newUrlList = getReferenceUrlsOfPage(domain, url)
-                for urlList in newUrlList:
-                    for url in urlList:
-                        allUrlsScraped.add(url)
-        print(depth)
+                # If the start of the spliced URL does not match the domain then it should be ignored.
+                domainWithHttps = "https://" + domain
+                splicedUrl = url[0:len(domainWithHttps)]
+                if splicedUrl != domainWithHttps:
+                    continue
+                q.put(url)
+                t = threading.Thread(target=execute_queue, args=(domain,q,))
+                t.start()
+                t.join()
+
+                # newUrlList = getReferenceUrlsOfPage(domain, url)
+                # for urlList in newUrlList:
+                #     for url in urlList:
+                #         allUrlsScraped.add(url)
+                #         print(url)
         print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
         castDepth -= 1
         counter += 1
+        
+       
     
     # print(allUrlsScraped)
     
