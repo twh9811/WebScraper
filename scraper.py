@@ -83,9 +83,16 @@ def execute_queue(domain, url_queue):
         try:
             url = url_queue.get(False)
             urlLists = getReferenceUrlsOfPage(domain, url)
-            for urlList in urlLists:
-                for url in urlList:
-                    allUrlsScraped.add(url)
+            # If it = None this indicates some HTTP error most likely happened. The thread/site crawl will not be ran.
+            # Should NOT affect the program from running.
+            # Right now there is a bug with creating urls with the first character starting with /
+            # Lots of webpages scraped are also old and don't exist anymore. NOT BUG RELATED
+            if urlLists == None:
+                pass
+            else:
+                for urlList in urlLists:
+                    for url in urlList:
+                        allUrlsScraped.add(url)
         except queue.Empty:
             q_full = False
 
@@ -99,7 +106,7 @@ def main():
     counter = 0
 
     while castDepth >= 0:
-        # if its the first iteration we want to gather all the urls from our initial input url
+        # if its the first iteration we want to gather all the future urls from our initial input url
         if castDepth == int(depth):
             urlLists = getReferenceUrlsOfPage(domain, url)
             for urlList in urlLists:
@@ -107,6 +114,7 @@ def main():
                     allUrlsScraped.add(url)
             print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
         else:
+            # A queue handles all the locking and stuff in threading, easy to use
             q = queue.Queue()
             # Then we use the urls we scraped from the first url and then scrape those.
             iterableScapedUrls = list(allUrlsScraped)
