@@ -119,7 +119,7 @@ def main():
             print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
         castDepth -= 1
         counter += 1
-        write_to_file(allUrlsScraped)
+    write_to_file(allUrlsScraped)
     
     
 if __name__ == "__main__":
