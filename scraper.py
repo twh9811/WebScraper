@@ -14,6 +14,8 @@ def getReferenceUrlsOfPage(domain, url):
         javaScriptURLs = set()
         cssURLs = set()
         urlList = []
+        # We want the urls to be on the same domain, so we check for the keyword.
+        splitDomain = domain.split(".")
 
         soupify = BeautifulSoup(webpage, 'html.parser')
 
@@ -23,11 +25,14 @@ def getReferenceUrlsOfPage(domain, url):
             hyperlinkURL = hyperlink.get('href')
             # A link should have an href tag and not be empty to be included 
             if hyperlinkURL != None and len(hyperlinkURL) != 0:
-                # Check to see if result is unique to the domain
-                if hyperlinkURL[0] == "/" or hyperlinkURL[0] == "#":
-                    #add domain to make a full url
-                    hyperlinkURL = "https://" + domain + hyperlinkURL
-                htmlURLs.add(hyperlinkURL)
+                # We want the urls to be on the same domain, so we check for the keyword.
+                #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
+                if splitDomain[1] in hyperlinkURL and splitDomain[0] == "www":
+                # Check to see if result is unique to the domain (i.e. /event)
+                    if hyperlinkURL[0] == "/" or hyperlinkURL[0] == "#":
+                        #add domain to make a full url
+                        hyperlinkURL = "https://" + domain + hyperlinkURL
+                    htmlURLs.add(hyperlinkURL)
 
         # Handles JavaScript.
         srcs = soupify.findAll("script")
@@ -35,10 +40,8 @@ def getReferenceUrlsOfPage(domain, url):
             srcURL = src.get('src')
             # A script should have an src tag and not be empty to be included.
             if srcURL != None and len(srcURL) != 0:
-                # We want the urls to be on the same domain, so we check for the keyword.
-                splitDomain = domain.split(".")
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                if splitDomain[1] in srcURL:
+                if splitDomain[1] in srcURL and splitDomain[0] == "www":
                     if srcURL[0] == "/" or srcURL[0] == "#":
                         #add domain to make a full url
                         srcURL = "https://" + domain + srcURL
@@ -53,10 +56,8 @@ def getReferenceUrlsOfPage(domain, url):
             linkURL = link.get("href")
             # A link should have an href tag and not be empty to be included.
             if linkURL != None and len(linkURL) != 0:
-                # We want the urls to be on the same domain, so we check for the keyword.
-                splitDomain = domain.split(".")
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                if splitDomain[1] in linkURL:
+                if splitDomain[1] in linkURL and splitDomain[0] == "www":
                     if linkURL[0] == "/" or linkURL[0] == "#":
                         #add domain to make a full url
                         linkURL = "https://" + domain + linkURL
@@ -96,6 +97,11 @@ def execute_queue(domain, url_queue):
         except queue.Empty:
             q_full = False
 
+def write_to_file(urlList):
+    file = open("URLs Scraped.txt", "a")
+    for url in urlList:
+        file.write(url + "\n")
+
 def main():
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
     print("Please enter a domain, a URL including https://, and a depth all separated by spaces. i.e. www.rit.edu https://www.rit.edu 2")
@@ -131,6 +137,7 @@ def main():
             print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
         castDepth -= 1
         counter += 1
+        write_to_file(allUrlsScraped)
     
     
 if __name__ == "__main__":
