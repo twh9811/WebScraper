@@ -27,7 +27,8 @@ def getReferenceUrlsOfPage(domain, url):
             if hyperlinkURL != None and len(hyperlinkURL) != 0:
                 # We want the urls to be on the same domain, so we check for the keyword.
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                if splitDomain[1] in hyperlinkURL and splitDomain[0] == "www":
+                domainChecker = hyperlinkURL.split(".")
+                if splitDomain[1] in hyperlinkURL and domainChecker[0] == "www":
                 # Check to see if result is unique to the domain (i.e. /event)
                     if hyperlinkURL[0] == "/" or hyperlinkURL[0] == "#":
                         #add domain to make a full url
@@ -41,7 +42,8 @@ def getReferenceUrlsOfPage(domain, url):
             # A script should have an src tag and not be empty to be included.
             if srcURL != None and len(srcURL) != 0:
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                if splitDomain[1] in srcURL and splitDomain[0] == "www":
+                domainChecker = srcURL.split(".")
+                if splitDomain[1] in srcURL and domainChecker[0] == "www":
                     if srcURL[0] == "/" or srcURL[0] == "#":
                         #add domain to make a full url
                         srcURL = "https://" + domain + srcURL
@@ -57,7 +59,8 @@ def getReferenceUrlsOfPage(domain, url):
             # A link should have an href tag and not be empty to be included.
             if linkURL != None and len(linkURL) != 0:
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                if splitDomain[1] in linkURL and splitDomain[0] == "www":
+                domainChecker = linkURL.split(".")
+                if splitDomain[1] in linkURL and domainChecker[0] == "www":
                     if linkURL[0] == "/" or linkURL[0] == "#":
                         #add domain to make a full url
                         linkURL = "https://" + domain + linkURL
