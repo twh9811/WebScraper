@@ -34,6 +34,9 @@ def getReferenceUrlsOfPage(domain, url):
                         if hyperlinkURL[:2] == "//":
                             #If this is the case, only need to add HTTPS. Not domain too.
                             hyperlinkURL = "https://" + hyperlinkURL[2:len(hyperlinkURL)]
+                        #gets rid of potential duplicates. i.e. https://www.rit.edu/ vs https://www.rit.edu
+                        elif hyperlinkURL[len(hyperlinkURL)-1] == "/":
+                            hyperlinkURL = hyperlinkURL[:len(hyperlinkURL)]
                         else:
                             #add domain and https to make a full url
                             hyperlinkURL = httpsDomain + hyperlinkURL
@@ -55,6 +58,9 @@ def getReferenceUrlsOfPage(domain, url):
                         if srcURL[:2] == "//":
                             #If this is the case, only need to add HTTPS. Not domain too.
                             srcURL = "https://" + srcURL[2:len(srcURL)]
+                        #gets rid of potential duplicates. i.e. https://www.rit.edu/ vs https://www.rit.edu
+                        elif srcURL[len(srcURL)-1] == "/":
+                            srcURL = srcURL[:len(srcURL)]
                         else:
                             #add domain and https to make a full url
                             srcURL = httpsDomain + srcURL
@@ -79,6 +85,9 @@ def getReferenceUrlsOfPage(domain, url):
                         if linkURL[:2] == "//":
                             #If this is the case, only need to add HTTPS. Not domain too.
                             linkURL = "https://" + linkURL[2:len(linkURL)]
+                        #gets rid of potential duplicates. i.e. https://www.rit.edu/ vs https://www.rit.edu
+                        elif linkURL[len(linkURL)-1] == "/":
+                            linkURL = linkURL[:len(linkURL)]
                         else:
                             #add domain and https to make a full url
                             linkURL = httpsDomain + linkURL
