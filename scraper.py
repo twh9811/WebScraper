@@ -104,9 +104,13 @@ def execute_queue(domain, url_queue):
             q_full = False
 
 def write_to_file(urlList):
+    #I keep getting a duplicate https://www.rit.edu/ so this is a last resort method of fixing it.
+    urlsUsed = set()
     file = open("URLs Scraped.txt", "a")
     for url in urlList:
-        file.write(url + "\n")
+        if url not in urlsUsed:
+            file.write(url + "\n")
+            urlsUsed.add(url)
 
 def main():
     # "This web scraper will take three pieces of input:  a domain, a URL, and a depth."
