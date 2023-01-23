@@ -10,10 +10,6 @@ allUrlsScraped = set()
 def getReferenceUrlsOfPage(domain, url):
     try:
         webpage = urllib.request.urlopen(url)
-        htmlURLs = set()
-        javaScriptURLs = set()
-        cssURLs = set()
-        urlList = []
         # We want the urls to be on the same domain, so we check for the keyword.
         splitDomain = domain.split(".")
         httpsDomain = "https://" + domain
@@ -31,8 +27,14 @@ def getReferenceUrlsOfPage(domain, url):
                 if splitDomain[1] in hyperlinkURL:
                 # Check to see if result is unique to the domain (i.e. /event)
                     if hyperlinkURL[0] == "/" or hyperlinkURL[0] == "#":
-                        #add domain to make a full url
-                        hyperlinkURL = httpsDomain + hyperlinkURL
+                        # There was a bug where the domain would repeat twice since some urls started with a / making them /domain.
+                        # This fixes
+                        if hyperlinkURL[1:len(domain)] == domain:
+                            #If this is the case, only need to add HTTPS. Not domain too.
+                            hyperlinkURL = "https://" + hyperlinkURL[1:len(hyperlinkURL)]
+                        else:
+                            #add domain and https to make a full url
+                            hyperlinkURL = httpsDomain + hyperlinkURL
                     # If the start of the spliced URL does not match the domain then it should be ignored.
                     if hyperlinkURL[:len(httpsDomain)] == httpsDomain:
                         allUrlsScraped.add(hyperlinkURL.strip())
@@ -46,10 +48,16 @@ def getReferenceUrlsOfPage(domain, url):
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
                 if splitDomain[1] in srcURL:
                     if srcURL[0] == "/" or srcURL[0] == "#":
-                        #add domain to make a full url
-                        srcURL = httpsDomain + srcURL
-                    # don't add to javaScript set if its in HTML set already. No need for duplicates.
-                    if srcURL in htmlURLs:
+                        # There was a bug where the domain would repeat twice since some urls started with a / making them /domain.
+                        # This fixes
+                        if srcURL[1:len(domain)] == domain:
+                            #If this is the case, only need to add HTTPS. Not domain too.
+                            srcURL = "https://" + srcURL[1:len(srcURL)]
+                        else:
+                            #add domain and https to make a full url
+                            srcURL = httpsDomain + srcURL
+                    # No need for duplicates. Failsafe
+                    if srcURL in allUrlsScraped:
                         continue
                     # If the start of the spliced URL does not match the domain then it should be ignored.
                     if srcURL[:len(httpsDomain)] == httpsDomain:
@@ -64,10 +72,16 @@ def getReferenceUrlsOfPage(domain, url):
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
                 if splitDomain[1] in linkURL:
                     if linkURL[0] == "/" or linkURL[0] == "#":
-                        #add domain to make a full url
-                        linkURL = httpsDomain + linkURL
-                    # don't add to CSS set if its in HTML/javasScript. No need for duplicates.
-                    if linkURL in htmlURLs or linkURL in javaScriptURLs:
+                        # There was a bug where the domain would repeat twice since some urls started with a / making them /domain.
+                        # This fixes
+                        if linkURL[1:len(domain)] == domain:
+                            #If this is the case, only need to add HTTPS. Not domain too.
+                            linkURL = "https://" + linkURL[1:len(linkURL)]
+                        else:
+                            #add domain and https to make a full url
+                            linkURL = httpsDomain + linkURL
+                    # No need for duplicates. Failsafe
+                    if linkURL in allUrlsScraped:
                         continue
                     # If the start of the spliced URL does not match the domain then it should be ignored.
                     if linkURL[:len(httpsDomain)] == httpsDomain:
