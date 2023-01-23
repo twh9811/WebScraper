@@ -20,6 +20,8 @@ def getReferenceUrlsOfPage(domain, url):
         hyperlinks = soupify.findAll("a")
         for hyperlink in hyperlinks:
             hyperlinkURL = hyperlink.get('href')
+            if hyperlinkURL == "//www.rit.edu/photonics/":
+                print()
             # A link should have an href tag and not be empty to be included 
             if hyperlinkURL != None and len(hyperlinkURL) != 0:
                 # We want the urls to be on the same domain, so we check for the keyword.
@@ -27,11 +29,11 @@ def getReferenceUrlsOfPage(domain, url):
                 if splitDomain[1] in hyperlinkURL:
                 # Check to see if result is unique to the domain (i.e. /event)
                     if hyperlinkURL[0] == "/" or hyperlinkURL[0] == "#":
-                        # There was a bug where the domain would repeat twice since some urls started with a / making them /domain.
-                        # This fixes
-                        if hyperlinkURL[1:len(domain)] == domain:
+                        # There was a bug where the domain would repeat twice since some urls started with a // making them /domain.
+                        # This fixes it
+                        if hyperlinkURL[:2] == "//":
                             #If this is the case, only need to add HTTPS. Not domain too.
-                            hyperlinkURL = "https://" + hyperlinkURL[1:len(hyperlinkURL)]
+                            hyperlinkURL = "https://" + hyperlinkURL[2:len(hyperlinkURL)]
                         else:
                             #add domain and https to make a full url
                             hyperlinkURL = httpsDomain + hyperlinkURL
@@ -50,9 +52,9 @@ def getReferenceUrlsOfPage(domain, url):
                     if srcURL[0] == "/" or srcURL[0] == "#":
                         # There was a bug where the domain would repeat twice since some urls started with a / making them /domain.
                         # This fixes
-                        if srcURL[1:len(domain)] == domain:
+                        if srcURL[:2] == "//":
                             #If this is the case, only need to add HTTPS. Not domain too.
-                            srcURL = "https://" + srcURL[1:len(srcURL)]
+                            srcURL = "https://" + srcURL[2:len(srcURL)]
                         else:
                             #add domain and https to make a full url
                             srcURL = httpsDomain + srcURL
@@ -74,9 +76,9 @@ def getReferenceUrlsOfPage(domain, url):
                     if linkURL[0] == "/" or linkURL[0] == "#":
                         # There was a bug where the domain would repeat twice since some urls started with a / making them /domain.
                         # This fixes
-                        if linkURL[1:len(domain)] == domain:
+                        if linkURL[:2] == "//":
                             #If this is the case, only need to add HTTPS. Not domain too.
-                            linkURL = "https://" + linkURL[1:len(linkURL)]
+                            linkURL = "https://" + linkURL[2:len(linkURL)]
                         else:
                             #add domain and https to make a full url
                             linkURL = httpsDomain + linkURL
