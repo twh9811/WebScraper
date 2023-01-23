@@ -16,6 +16,7 @@ def getReferenceUrlsOfPage(domain, url):
         urlList = []
         # We want the urls to be on the same domain, so we check for the keyword.
         splitDomain = domain.split(".")
+        httpsDomain = "https://" + domain
 
         soupify = BeautifulSoup(webpage, 'html.parser')
 
@@ -27,13 +28,14 @@ def getReferenceUrlsOfPage(domain, url):
             if hyperlinkURL != None and len(hyperlinkURL) != 0:
                 # We want the urls to be on the same domain, so we check for the keyword.
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                domainChecker = hyperlinkURL.split(".")
-                if splitDomain[1] in hyperlinkURL and domainChecker[0] == "www":
+                if splitDomain[1] in hyperlinkURL:
                 # Check to see if result is unique to the domain (i.e. /event)
                     if hyperlinkURL[0] == "/" or hyperlinkURL[0] == "#":
                         #add domain to make a full url
-                        hyperlinkURL = "https://" + domain + hyperlinkURL
-                    htmlURLs.add(hyperlinkURL)
+                        hyperlinkURL = httpsDomain + hyperlinkURL
+                    domainChecker = hyperlinkURL.split(".")
+                    if domainChecker[0] == "https://www":
+                        htmlURLs.add(hyperlinkURL)
 
         # Handles JavaScript.
         srcs = soupify.findAll("script")
@@ -42,15 +44,16 @@ def getReferenceUrlsOfPage(domain, url):
             # A script should have an src tag and not be empty to be included.
             if srcURL != None and len(srcURL) != 0:
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                domainChecker = srcURL.split(".")
-                if splitDomain[1] in srcURL and domainChecker[0] == "www":
+                if splitDomain[1] in srcURL:
                     if srcURL[0] == "/" or srcURL[0] == "#":
                         #add domain to make a full url
-                        srcURL = "https://" + domain + srcURL
+                        srcURL = httpsDomain + srcURL
                     # don't add to javaScript set if its in HTML set already. No need for duplicates.
                     if srcURL in htmlURLs:
                         continue
-                    javaScriptURLs.add(srcURL)
+                    domainChecker = srcURL.split(".")
+                    if domainChecker[0] == "https://www":
+                        javaScriptURLs.add(srcURL)
 
         # Handles CSS
         links = soupify.findAll("link")
@@ -59,15 +62,16 @@ def getReferenceUrlsOfPage(domain, url):
             # A link should have an href tag and not be empty to be included.
             if linkURL != None and len(linkURL) != 0:
                 #In theory it should always be in the 1st spot since www (DOT) domainName (DOT) com
-                domainChecker = linkURL.split(".")
-                if splitDomain[1] in linkURL and domainChecker[0] == "www":
+                if splitDomain[1] in linkURL:
                     if linkURL[0] == "/" or linkURL[0] == "#":
                         #add domain to make a full url
-                        linkURL = "https://" + domain + linkURL
+                        linkURL = httpsDomain + linkURL
                     # don't add to CSS set if its in HTML/javasScript. No need for duplicates.
                     if linkURL in htmlURLs or linkURL in javaScriptURLs:
                         continue
-                    cssURLs.add(linkURL)
+                    domainChecker = linkURL.split(".")
+                    if domainChecker[0] == "https://www":
+                        cssURLs.add(linkURL)
 
         # adding all the sets into a list to make return value easier to handle
         urlList.append(htmlURLs)
