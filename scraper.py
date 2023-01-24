@@ -20,8 +20,6 @@ def getReferenceUrlsOfPage(domain, url):
         hyperlinks = soupify.findAll("a")
         for hyperlink in hyperlinks:
             hyperlinkURL = hyperlink.get('href')
-            if hyperlinkURL == "//www.rit.edu/photonics/":
-                print()
             # A link should have an href tag and not be empty to be included 
             if hyperlinkURL != None and len(hyperlinkURL) != 0:
                 # We want the urls to be on the same domain, so we check for the keyword.
@@ -130,11 +128,13 @@ def main():
     castDepth = int(depth)
     counter = 0
 
+    file = open("URLs Scraped2.txt", "a")
     while castDepth >= 0:
         # if its the first iteration we want to gather all the future urls from our initial input url
         if castDepth == int(depth):
             getReferenceUrlsOfPage(domain, url)
             print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
+            file.write("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)) + "\n")
         else:
             # A queue handles all the locking and stuff in threading, easy to use
             q = queue.Queue()
@@ -146,6 +146,7 @@ def main():
                 t.start()
                 t.join()
             print("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)))
+            file.write("Total Amount of URLs Scraped at depth " + str(counter) + " is " + str(len(allUrlsScraped)) + "\n")
         castDepth -= 1
         counter += 1
     write_to_file(allUrlsScraped)
