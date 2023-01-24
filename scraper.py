@@ -36,7 +36,7 @@ def getReferenceUrlsOfPage(domain, url):
                             hyperlinkURL = "https://" + hyperlinkURL[2:len(hyperlinkURL)]
                         #gets rid of potential duplicates. i.e. https://www.rit.edu/ vs https://www.rit.edu
                         elif hyperlinkURL[len(hyperlinkURL)-1] == "/":
-                            hyperlinkURL = hyperlinkURL[:len(hyperlinkURL)]
+                            hyperlinkURL = hyperlinkURL[:len(hyperlinkURL)-1]
                         else:
                             #add domain and https to make a full url
                             hyperlinkURL = httpsDomain + hyperlinkURL
